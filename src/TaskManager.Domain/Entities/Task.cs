@@ -10,8 +10,8 @@ public class Task
     public DateTime? DueDate { get; set; }
     public Status Status { get; set; } = Status.Pending;
     public Priority Priority { get; set; } = Priority.Medium;
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
     
     // Foreign key to User
     public Guid UserId { get; set; } 
