@@ -36,13 +36,19 @@ public class AuthService : IAuthService
             throw new AuthenticationException("User with this username or email already exists");
         }
 
+        if (UserCredentialsValidator.IsSingleWordUsername(registerDto.Username) == false || UserCredentialsValidator.IsCredentialEmail(registerDto.Email) == false)
+        {
+            _logger.LogWarning("Registration failed for {Username} or {Email}: Invalid username or email", registerDto.Username, registerDto.Email);
+            throw new AuthenticationException("Invalid username or email");
+        }
+
         var newUser = new User
         {
             Username = registerDto.Username,
             Email = registerDto.Email,
         };
 
-        if (PasswordValidator.IsPasswordComplex(registerDto.Password))
+        if (UserCredentialsValidator.IsPasswordComplex(registerDto.Password) == false)
         {
             _logger.LogWarning("Registration failed for {Username}: Password not complex enough", registerDto.Username);
             throw new AuthenticationException("Password is not complex enough");
