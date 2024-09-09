@@ -28,6 +28,7 @@ public static class DependencyContainerExtension
         // Adds the services to the service collection.
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<ITaskService, TaskService>();
         
         // Adds the password hasher service to the service collection.
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();

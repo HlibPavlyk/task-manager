@@ -16,7 +16,7 @@ public class AuthService : IAuthService
     private readonly IPasswordHasher<User> _passwordHasher;
     private readonly ILogger<AuthService> _logger;
 
-    // Constructor injects dependencies, including ILogger for logging purposes.
+    // Constructor to initialize dependencies for token service, password hashing, and logging.
     public AuthService(IUnitOfWork unitOfWork, ITokenService tokenService, IPasswordHasher<User> passwordHasher, ILogger<AuthService> logger)
     {
         _unitOfWork = unitOfWork;
@@ -25,38 +25,36 @@ public class AuthService : IAuthService
         _logger = logger;
     }
 
-    // Registers a new user if the username or email is not already in use.
+    // Registers a new user after validating the username, email, and password.
     public async Task<Guid> RegisterAsync(RegisterDto registerDto)
     {
         _logger.LogInformation("Starting registration for {Username}", registerDto.Username);
 
+        // Check if a user with the same username or email already exists.
         if (await _unitOfWork.Users.AnyAsync(u => u.Username == registerDto.Username || u.Email == registerDto.Email))
-        {
-            _logger.LogWarning("Registration failed. User with username {Username} or email {Email} already exists", registerDto.Username, registerDto.Email);
-            throw new AuthenticationException("User with this username or email already exists");
-        }
+            throw new AuthenticationException($"Registration failed: User with username '{registerDto.Username}' or email '{registerDto.Email}' already exists");
 
-        if (UserCredentialsValidator.IsSingleWordUsername(registerDto.Username) == false || UserCredentialsValidator.IsCredentialEmail(registerDto.Email) == false)
-        {
-            _logger.LogWarning("Registration failed for {Username} or {Email}: Invalid username or email", registerDto.Username, registerDto.Email);
-            throw new AuthenticationException("Invalid username or email");
-        }
+        // Validate the username and email.
+        if (!UserCredentialsValidator.IsSingleWordUsername(registerDto.Username))
+            throw new AuthenticationException($"Registration failed: Username '{registerDto.Username}' is not valid. It must be a single word.");
 
+        if (!UserCredentialsValidator.IsCredentialEmail(registerDto.Email))
+            throw new AuthenticationException($"Registration failed: Email '{registerDto.Email}' is not valid.");
+
+        // Create a new user and validate password complexity.
         var newUser = new User
         {
             Username = registerDto.Username,
             Email = registerDto.Email,
         };
 
-        if (UserCredentialsValidator.IsPasswordComplex(registerDto.Password) == false)
-        {
-            _logger.LogWarning("Registration failed for {Username}: Password not complex enough", registerDto.Username);
-            throw new AuthenticationException("Password is not complex enough");
-        }
+        if (!UserCredentialsValidator.IsPasswordComplex(registerDto.Password))
+            throw new AuthenticationException("Registration failed: Password does not meet complexity requirements (minimum 8 characters, at least one uppercase letter, one number, and one special character).");
 
-        // Hash the user's password before saving.
+        // Hash the password before saving it.
         newUser.PasswordHash = _passwordHasher.HashPassword(newUser, registerDto.Password);
 
+        // Save the new user to the database.
         await _unitOfWork.Users.AddAsync(newUser);
         await _unitOfWork.SaveChangesAsync();
 
@@ -65,20 +63,19 @@ public class AuthService : IAuthService
         return newUser.Id;
     }
 
-    // Logs in the user by verifying the credentials and generating a JWT token.
+    // Authenticates the user using username/email and password, and generates a JWT token.
     public async Task<LoginResponseDto> LoginAsync(LoginRequestDto login)
     {
         _logger.LogInformation("Login attempt for {UsernameOrEmail}", login.UsernameOrEmail);
 
+        // Retrieve the user by username or email.
         var user = await _unitOfWork.Users.GetUserByUsernameOrEmailAsync(login.UsernameOrEmail);
 
+        // Validate the credentials by checking the password hash.
         if (user == null || _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, login.Password) == PasswordVerificationResult.Failed)
-        {
-            _logger.LogWarning("Login failed for {UsernameOrEmail}: Invalid credentials", login.UsernameOrEmail);
-            throw new AuthenticationException("Invalid username, email or password");
-        }
+            throw new AuthenticationException($"Login failed: Invalid credentials for '{login.UsernameOrEmail}'");
 
-        // Generate a JWT token for the authenticated user.
+        // Generate the JWT token for the authenticated user.
         var token = _tokenService.CreateToken(user);
 
         _logger.LogInformation("Login successful for {UsernameOrEmail}. Token generated", login.UsernameOrEmail);
