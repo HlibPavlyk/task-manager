@@ -37,12 +37,12 @@ public sealed class TaskConfiguration : IEntityTypeConfiguration<Task>
 
         // CreatedAt and UpdatedAt are automatically set
         builder.Property(t => t.CreatedAt)
-            .HasDefaultValueSql("GETUTCDATE()");
+            .HasDefaultValueSql("DATEADD(HOUR, 3, GETUTCDATE())");
 
         builder.Property(t => t.UpdatedAt)
             .IsRequired()
             .ValueGeneratedOnAddOrUpdate()
-            .HasDefaultValueSql("GETUTCDATE()");
+            .HasDefaultValueSql("DATEADD(HOUR, 3, GETUTCDATE())");
 
         // Foreign key relationship with User (Many Tasks to One User)
         builder.HasOne(t => t.User)

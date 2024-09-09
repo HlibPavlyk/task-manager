@@ -33,13 +33,13 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
         // CreatedAt is automatically set
         builder.Property(u => u.CreatedAt)
-            .HasDefaultValueSql("GETUTCDATE()");
+            .HasDefaultValueSql("DATEADD(HOUR, 3, GETUTCDATE())");
 
         // UpdatedAt is updated on changes
         builder.Property(u => u.UpdatedAt)
             .IsRequired()
             .ValueGeneratedOnAddOrUpdate()
-            .HasDefaultValueSql("GETUTCDATE()");
+            .HasDefaultValueSql("DATEADD(HOUR, 3, GETUTCDATE())");
 
         // One-to-Many relationship with Task (each User can have many Tasks)
         builder.HasMany(u => u.Tasks)

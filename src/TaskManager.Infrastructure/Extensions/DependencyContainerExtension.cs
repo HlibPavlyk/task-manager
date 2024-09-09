@@ -19,6 +19,12 @@ public static class DependencyContainerExtension
         // Adds the database connection configuration to the service collection.
         services.AddDbEfConnection(configuration);
         
+        // Adds the HttpContextAccessor to the service collection.
+        services.AddHttpContextAccessor();
+        
+        // Adds the Identity services to the service collection.
+        services.AddJwtAuthentication(configuration);
+        
         // Adds the AutoMapper service to the service collection.
         services.AddAutoMapperService();
         
