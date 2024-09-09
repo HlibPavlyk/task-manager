@@ -1,7 +1,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TaskManager.Application.Abstractions.Repositories;
+using TaskManager.Application.Abstractions.Services;
 using TaskManager.Infrastructure.Repositories;
+using TaskManager.Infrastructure.Services;
 
 namespace TaskManager.Infrastructure.Extensions;
 
@@ -15,5 +17,9 @@ public static class DependencyContainerExtension
         
         // Adds the repositories to the service collection.
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        // Adds the services to the service collection.
+        services.AddScoped<ITokenService, TokenService>();
+
     }
 }
