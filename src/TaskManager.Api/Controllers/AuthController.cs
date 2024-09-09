@@ -1,5 +1,6 @@
 using System.Security.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using TaskManager.Api.Responses;
 using TaskManager.Application.Abstractions.Services;
 using TaskManager.Application.Dtos.Auth;
 
@@ -10,11 +11,13 @@ namespace TaskManager.Api.Controllers;
 public class AuthController : Controller
 {
     private readonly IAuthService _authService;
+    private readonly ILogger<AuthController> _logger;
 
     // Constructor that injects the IAuthService dependency.
-    public AuthController(IAuthService authService)
+    public AuthController(IAuthService authService, ILogger<AuthController> logger)
     {
         _authService = authService;
+        _logger = logger;
     }
     
     // Registers a new user. Returns the user's ID if successful, or a bad request if an error occurs.
@@ -28,7 +31,7 @@ public class AuthController : Controller
         }
         catch (AuthenticationException e)
         {
-            return BadRequest(e.Message); // Returns 400 Bad Request with the error message.
+            return LoggingHelper.LogAndReturnBadRequest(_logger, e); // Returns 400 Bad Request with the error message.
         }
     }
     
@@ -43,7 +46,7 @@ public class AuthController : Controller
         }
         catch (AuthenticationException e)
         {
-            return BadRequest(e.Message); // Returns 400 Bad Request with the error message.
+            return LoggingHelper.LogAndReturnBadRequest(_logger, e); // Returns 400 Bad Request with the error message.
         }
     }
 }
