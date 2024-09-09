@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TaskManager.Application.Abstractions.Repositories;
 using TaskManager.Application.Abstractions.Services;
+using TaskManager.Application.AutoMapper;
 using TaskManager.Application.Services;
 using TaskManager.Domain.Entities;
 using TaskManager.Infrastructure.Repositories;
@@ -17,6 +18,9 @@ public static class DependencyContainerExtension
     {
         // Adds the database connection configuration to the service collection.
         services.AddDbEfConnection(configuration);
+        
+        // Adds the AutoMapper service to the service collection.
+        services.AddAutoMapperService();
         
         // Adds the repositories to the service collection.
         services.AddScoped<IUnitOfWork, UnitOfWork>();
