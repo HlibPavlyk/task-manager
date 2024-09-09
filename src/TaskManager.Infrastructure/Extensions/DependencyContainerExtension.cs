@@ -1,7 +1,10 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TaskManager.Application.Abstractions.Repositories;
 using TaskManager.Application.Abstractions.Services;
+using TaskManager.Application.Services;
+using TaskManager.Domain.Entities;
 using TaskManager.Infrastructure.Repositories;
 using TaskManager.Infrastructure.Services;
 
@@ -20,6 +23,10 @@ public static class DependencyContainerExtension
 
         // Adds the services to the service collection.
         services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<IAuthService, AuthService>();
+        
+        // Adds the password hasher service to the service collection.
+        services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
     }
 }
