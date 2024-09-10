@@ -25,14 +25,14 @@ This project provides a backend API for managing tasks with user authentication.
 
 ## API Documentation
 
-
-
-
 ### User Authentication
 
 #### `POST /api/users/register`
 - **Description:** Registers a new user in the system.
 - **Request Body:**
+  - `username`: Required, string.
+  - `email`: Required, string.
+  - `password`: Required, string.
     ```json
     {
         "username": "string",
@@ -41,15 +41,18 @@ This project provides a backend API for managing tasks with user authentication.
     }
     ```
 - **Response:**
+  - `id`: The ID of the newly created user.
     ```json
     {
-        "id": "string",
+        "id": "string"
     }
     ```
 
 #### `POST /api/users/login`
 - **Description:** Authenticates a user and returns a JWT token.
 - **Request Body:**
+  - `usernameOrEmail`: Required, string (either username or email).
+  - `password`: Required, string.
     ```json
     {
         "usernameOrEmail": "string",
@@ -57,6 +60,9 @@ This project provides a backend API for managing tasks with user authentication.
     }
     ```
 - **Response:**
+  - `username`: The username of the authenticated user.
+  - `email`: The email of the authenticated user.
+  - `token`: JWT token for authentication.
     ```json
     {
         "username": "string",
@@ -70,16 +76,22 @@ This project provides a backend API for managing tasks with user authentication.
 #### `POST /api/tasks`
 - **Description:** Creates a new task. Requires JWT authentication.
 - **Request Body:**
+  - `title`: Required, string.
+  - `description`: Optional, string.
+  - `status`: Required, enum value, one of ["Pending", "InProgress", "Completed"].
+  - `priority`: Required, enum value, one of ["Low", "Medium", "High"].
+  - `dueDate`: Optional, string, in ISO 8601 format.
     ```json
     {
-        "title": "string", // Required
-        "description": "string", // Optional
-        "status": "string", // Required, Enum: ["Pending", "InProgress", "Completed"]
-        "priority": "string", // Required, Enum: ["Low", "Medium", "High"]
-        "dueDate": "string" // Optional, ISO 8601 format
+        "title": "string",
+        "description": "string",
+        "status": "string",
+        "priority": "string",
+        "dueDate": "string"
     }
     ```
 - **Response:**
+  - Returns the task details, including the `id`, `createdAt`, and `updatedAt` fields.
     ```json
     {
         "id": "int",
@@ -96,13 +108,14 @@ This project provides a backend API for managing tasks with user authentication.
 #### `GET /api/tasks`
 - **Description:** Retrieves a paginated list of tasks. Supports filtering and sorting. Requires JWT authentication.
 - **Query Parameters:**
-  - `status` (optional): Filter by task status. Enum: \["Pending", "InProgress", "Completed"\]
-  - `priority` (optional): Filter by task priority. Enum: \["Low", "Medium", "High"\]
-  - `dueDate` (optional): Filter by due date.
-  - `sortBy` (optional): Sort by `DueDate`, `Priority`, or `CreatedAt` by default.
-  - `page` (required): Page number for pagination.
-  - `pageSize` (required): Number of tasks per page.
+  - `status`: Optional, filter by task status (enum: ["Pending", "InProgress", "Completed"]).
+  - `priority`: Optional, filter by task priority (enum: ["Low", "Medium", "High"]).
+  - `dueDate`: Optional, filter by due date (ISO 8601 format).
+  - `sortBy`: Optional, sort by `DueDate`, `Priority`, or `CreatedAt`.
+  - `page`: Required, integer, the page number for pagination.
+  - `pageSize`: Required, integer, number of tasks per page.
 - **Response:**
+  - Returns a paginated list of tasks.
     ```json
     {
         "totalPages": "int",
@@ -117,13 +130,14 @@ This project provides a backend API for managing tasks with user authentication.
                 "createdAt": "string",
                 "updatedAt": "string"
             }
-        ],[...]
+        ]
     }
     ```
 
 #### `GET /api/tasks/{id}`
 - **Description:** Retrieves a specific task by ID. Requires JWT authentication.
 - **Response:**
+  - Returns the task details.
     ```json
     {
         "id": "int",
@@ -140,16 +154,22 @@ This project provides a backend API for managing tasks with user authentication.
 #### `PUT /api/tasks/{id}`
 - **Description:** Updates an existing task by ID. Requires JWT authentication.
 - **Request Body:**
+  - `title`: Required, string.
+  - `description`: Optional, string.
+  - `status`: Required, enum value, one of ["Pending", "InProgress", "Completed"].
+  - `priority`: Required, enum value, one of ["Low", "Medium", "High"].
+  - `dueDate`: Optional, string, in ISO 8601 format.
     ```json
     {
-        "title": "string", // Required
-        "description": "string", // Optional
-        "status": "string", // Required, Enum: ["Pending", "InProgress", "Completed"]
-        "priority": "string", // Required, Enum: ["Low", "Medium", "High"]
-        "dueDate": "string" // Optional, ISO 8601 format
+        "title": "string",
+        "description": "string",
+        "status": "string",
+        "priority": "string",
+        "dueDate": "string"
     }
     ```
 - **Response:**
+  - Returns the updated task details.
     ```json
     {
         "id": "int",
@@ -165,8 +185,9 @@ This project provides a backend API for managing tasks with user authentication.
 
 #### `DELETE /api/tasks/{id}`
 - **Description:** Deletes a task by its ID (specified in the route). Requires JWT authentication.
-
-- This updated description clarifies that the response for a successful deletion returns no content, as expected with a `204 No Content` status.
+- **Response:**
+  - `204 No Content`: If the task was successfully deleted.
+  - `404 Not Found`: If the task with the provided ID does not exist.
 
 ## Architecture and Design
 
