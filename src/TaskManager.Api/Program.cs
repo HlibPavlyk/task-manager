@@ -47,12 +47,19 @@ builder.Services.AddDependencies(builder.Configuration);
 
 var app = builder.Build();
 
-// Enables Swagger in development mode.
-if (app.Environment.IsDevelopment())
+// Migrates the database if the application is running in production.
+if (app.Environment.IsProduction())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.MigrateDatabase();
 }
+
+// Configures the application to use Swagger and Swagger UI.
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Task Manager API V1");
+    c.RoutePrefix = string.Empty;
+});
 
 // Enforces HTTPS.
 app.UseHttpsRedirection();

@@ -1,0 +1,24 @@
+﻿
+services:
+  task-manager.api:
+    container_name: task-manager.api
+    image: task-manager.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+    build:
+      context: .
+      dockerfile: src/TaskManager.Api/Dockerfile
+    ports:
+      - "5000:8080"
+    depends_on:
+      - task-manager.db
+  
+  task-manager.db:
+    container_name: task-manager.db
+    image: "mcr.microsoft.com/mssql/server"
+    ports:
+      - "1433:1433"
+    environment:
+      - ACCEPT_EULA=y
+      - SA_PASSWORD=ComplexPassword123!
