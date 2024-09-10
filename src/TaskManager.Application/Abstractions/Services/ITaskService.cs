@@ -9,7 +9,7 @@ public interface ITaskService
     Task<Guid> CreateTaskAsync(TaskPostDto taskPostDto);
 
     // Retrieves a paginated list of tasks based on filtering and sorting options.
-    Task<PagedResponse<TaskGetDto>> GetPagedTasksAsync(TaskQueryDto taskQueryDto);
+    Task<PagedResponse<TaskGetDto>> GetPagedTasksAsync(TaskSortQueryDto taskSortQueryDto, TaskPageQueryDto taskPageQueryDto);
 
     // Retrieves task details by its unique identifier.
     Task<TaskGetDto> GetTaskByIdAsync(Guid id);

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using TaskManager.Domain.Abstractions;
 using TaskManager.Domain.Entities;
 using Task = TaskManager.Domain.Entities.Task;
 
@@ -20,4 +21,23 @@ public class ApplicationDbContext : DbContext
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
         base.OnModelCreating(modelBuilder);
     }
+    
+    // Override SaveChangesAsync to set UpdatedAt for modified entities
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        var currentDateTime = DateTime.Now;
+        var entries = ChangeTracker.Entries().ToList();
+
+        // Get a list of all Modified entries that implement the IUpdateable interface
+        var updatedEntries = entries.Where(e => e is { Entity: IUpdateable, State: EntityState.Modified }).ToList();
+
+        // Set UpdatedAt for modified entities
+        updatedEntries.ForEach(e =>
+        {
+            ((IUpdateable)e.Entity).UpdatedAt = currentDateTime;
+        });
+
+        return await base.SaveChangesAsync(cancellationToken);
+    }
+
 }

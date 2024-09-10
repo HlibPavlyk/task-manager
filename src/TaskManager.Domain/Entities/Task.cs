@@ -1,8 +1,9 @@
+using TaskManager.Domain.Abstractions;
 using TaskManager.Domain.Enums;
 
 namespace TaskManager.Domain.Entities;
 
-public class Task
+public class Task : IUpdateable
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public string Title { get; set; } = string.Empty;

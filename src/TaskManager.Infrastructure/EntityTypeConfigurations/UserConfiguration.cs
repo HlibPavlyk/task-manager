@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TaskManager.Domain.Entities;
 
@@ -33,13 +34,12 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
         // CreatedAt is automatically set
         builder.Property(u => u.CreatedAt)
-            .HasDefaultValueSql("DATEADD(HOUR, 3, GETUTCDATE())");
+            .HasDefaultValueSql("GETDATE()");
 
-        // UpdatedAt is updated on changes
-        builder.Property(u => u.UpdatedAt)
+        builder.Property(t => t.UpdatedAt)
             .IsRequired()
             .ValueGeneratedOnAddOrUpdate()
-            .HasDefaultValueSql("DATEADD(HOUR, 3, GETUTCDATE())");
+            .HasDefaultValueSql("GETDATE()");
 
         // One-to-Many relationship with Task (each User can have many Tasks)
         builder.HasMany(u => u.Tasks)

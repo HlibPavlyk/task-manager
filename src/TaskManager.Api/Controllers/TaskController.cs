@@ -30,7 +30,11 @@ public class TaskController : Controller
         try
         {
             var id = await _taskService.CreateTaskAsync(taskPostDto);
-            return CreatedAtRoute(nameof(GetTaskById), new { id }, await _taskService.GetTaskByIdAsync(id));
+            return CreatedAtAction(nameof(GetTaskById), new { id }, await _taskService.GetTaskByIdAsync(id));
+        }
+        catch (InvalidDataException e)
+        {
+            return LoggingHelper.LogAndReturnBadRequest(_logger, e);
         }
         catch (UnauthorizedAccessException e)
         {
@@ -44,12 +48,16 @@ public class TaskController : Controller
     
     // Retrieves a paginated list of tasks for the authenticated user based on filters.
     [HttpGet]
-    public async Task<IActionResult> GetPagedTasks([FromQuery] TaskQueryDto taskQueryDto)
+    public async Task<IActionResult> GetPagedTasks([FromQuery] TaskSortQueryDto taskSortQueryDto, [FromQuery] int page = 1, [FromQuery] int size = 10)
     {
         try
         {
-            var tasks = await _taskService.GetPagedTasksAsync(taskQueryDto);
+            var tasks = await _taskService.GetPagedTasksAsync(taskSortQueryDto, new TaskPageQueryDto(page, size));
             return Ok(tasks);
+        }
+        catch (ArgumentException e)
+        {
+            return LoggingHelper.LogAndReturnBadRequest(_logger, e);
         }
         catch (UnauthorizedAccessException e)
         {

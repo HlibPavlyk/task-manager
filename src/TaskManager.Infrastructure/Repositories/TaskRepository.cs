@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using TaskManager.Application.Abstractions.Repositories;
 using TaskManager.Application.Dtos.Other;
 using TaskManager.Application.Dtos.Task;
+using TaskManager.Domain.Enums;
 using Task = TaskManager.Domain.Entities.Task;
 
 namespace TaskManager.Infrastructure.Repositories;
@@ -12,32 +13,57 @@ public class TaskRepository : GenericRepository<Task>, ITaskRepository
     public TaskRepository(ApplicationDbContext context) : base(context) { }
 
     // Retrieves a paginated list of tasks based on the specified page number and size.
-    public async Task<PagedResponse<Task>> GetPagedTasksAsync(TaskQueryDto taskQuery, Guid userId)
+    public async Task<PagedResponse<Task>> GetPagedTasksAsync(TaskSortQueryDto taskSortQuery, TaskPageQueryDto taskPageQueryDto, Guid userId)
     {
         var query = Context.Tasks
             .Where(t => t.UserId == userId)
             .AsNoTracking(); // Improves performance by not tracking the entities.
-        
-        // Apply Filtering
-        if (!string.IsNullOrEmpty(taskQuery.Status))
-            query = query.Where(t => t.Status.ToString() == taskQuery.Status); // Assuming status is an enum
-        if (taskQuery.DueDate.HasValue)
-            query = query.Where(t => t.DueDate == taskQuery.DueDate.Value);
-        if (!string.IsNullOrEmpty(taskQuery.Priority))
-            query = query.Where(t => t.Priority.ToString() == taskQuery.Priority); // Assuming priority is an enum
+
+        // Apply Filtering for Status (Enum parsing)
+        if (!string.IsNullOrEmpty(taskSortQuery.Status))
+        {
+            if (Enum.TryParse<Status>(taskSortQuery.Status, true, out var statusEnum)) // Gracefully handle invalid enum values
+            {
+                query = query.Where(t => t.Status == statusEnum);
+            }
+            else
+            {
+                throw new ArgumentException($"Invalid status value: {taskSortQuery.Status}");
+            }
+        }
+
+        // Apply Filtering for Priority (Enum parsing)
+        if (!string.IsNullOrEmpty(taskSortQuery.Priority))
+        {
+            if (Enum.TryParse<Priority>(taskSortQuery.Priority, true, out var priorityEnum)) // Gracefully handle invalid enum values
+            {
+                query = query.Where(t => t.Priority == priorityEnum);
+            }
+            else
+            {
+                throw new ArgumentException($"Invalid priority value: {taskSortQuery.Priority}");
+            }
+        }
+
+        // Apply Filtering for DueDate
+        if (taskSortQuery.DueDate.HasValue)
+        {
+            query = query.Where(t => t.DueDate == taskSortQuery.DueDate.Value);
+        }
 
         // Apply Sorting
-        if (!string.IsNullOrEmpty(taskQuery.SortBy))
+        if (!string.IsNullOrEmpty(taskSortQuery.SortBy))
         {
-            query = taskQuery.SortBy switch
+            query = taskSortQuery.SortBy switch
             {
-                "DueDate" => query.OrderBy(t => t.DueDate),
+                "DueDate" => query.OrderByDescending(t => t.DueDate),
                 "Priority" => query.OrderBy(t => t.Priority),
                 _ => query.OrderBy(t => t.CreatedAt) // Default sorting
             };
         }
 
         // Calls a helper method to handle pagination logic.
-        return await GetPagedEntitiesAsync(query, taskQuery.Page, taskQuery.PageSize);
+        return await GetPagedEntitiesAsync(query, taskPageQueryDto.Page, taskPageQueryDto.PageSize);
     }
+
 }

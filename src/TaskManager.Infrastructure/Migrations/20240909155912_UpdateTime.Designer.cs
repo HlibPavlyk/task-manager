@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TaskManager.Infrastructure;
 
@@ -11,9 +12,11 @@ using TaskManager.Infrastructure;
 namespace TaskManager.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240909155912_UpdateTime")]
+    partial class UpdateTime
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,7 +31,7 @@ namespace TaskManager.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("DATEADD(HOUR, 3, GETUTCDATE())");
@@ -53,8 +56,7 @@ namespace TaskManager.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .IsRequired()
+                    b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("DATEADD(HOUR, 3, GETUTCDATE())");
@@ -75,7 +77,7 @@ namespace TaskManager.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("DATEADD(HOUR, 3, GETUTCDATE())");
@@ -89,8 +91,7 @@ namespace TaskManager.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .IsRequired()
+                    b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("DATEADD(HOUR, 3, GETUTCDATE())");

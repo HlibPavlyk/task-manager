@@ -36,6 +36,10 @@ public class TaskService : ITaskService
         // Check if the user exists in the system.
         if (!await _unitOfWork.Users.AnyAsync(x => x.Id == userId))
             throw new NotFoundException($"User with ID {userId} not found.");
+        
+        // Check if the due date is in the past.
+        if(taskPostDto.DueDate != null && taskPostDto.DueDate < DateTime.Now)
+            throw new InvalidDataException("Due date cannot be in the past.");
 
         // Map the DTO to the Task entity and set the user ID.
         var task = _mapper.Map<Task>(taskPostDto);
@@ -49,12 +53,12 @@ public class TaskService : ITaskService
     }
 
     // Retrieves a paginated list of tasks for the authenticated user.
-    public async Task<PagedResponse<TaskGetDto>> GetPagedTasksAsync(TaskQueryDto taskQueryDto)
+    public async Task<PagedResponse<TaskGetDto>> GetPagedTasksAsync(TaskSortQueryDto taskSortQueryDto, TaskPageQueryDto taskPageQueryDto)
     {
         var userId = GetAuthenticatedUserId(); // Get the ID of the authenticated user.
         _logger.LogInformation("Retrieving tasks for user {UserId}", userId);
 
-        var tasks = await _unitOfWork.Tasks.GetPagedTasksAsync(taskQueryDto, userId);
+        var tasks = await _unitOfWork.Tasks.GetPagedTasksAsync(taskSortQueryDto, taskPageQueryDto, userId);
         if (tasks.TotalPages == 0)
             throw new NotFoundException($"No tasks found for user with ID {userId}.");
 

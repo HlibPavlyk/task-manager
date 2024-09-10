@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Task = TaskManager.Domain.Entities.Task;
 
@@ -42,7 +43,8 @@ public sealed class TaskConfiguration : IEntityTypeConfiguration<Task>
         builder.Property(t => t.UpdatedAt)
             .IsRequired()
             .ValueGeneratedOnAddOrUpdate()
-            .HasDefaultValueSql("DATEADD(HOUR, 3, GETUTCDATE())");
+            .HasDefaultValueSql("DATEADD(HOUR, 3, GETUTCDATE())")
+            .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Save);
 
         // Foreign key relationship with User (Many Tasks to One User)
         builder.HasOne(t => t.User)
